@@ -5,6 +5,8 @@ class Hplink < ActiveRecord::Base
   URL = "http://www.huffingtonpost.com/"
   PATHS = ["","politics", "business", "entertainment","technology","media","theworldpost","sports"]
 
+  #needs refactoring
+
   def self.populate_db
     PATHS.each do |path|
       doc = Nokogiri::HTML(open(URL + path))
