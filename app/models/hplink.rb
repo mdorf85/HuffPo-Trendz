@@ -15,7 +15,7 @@ class Hplink < ActiveRecord::Base
         path == "" ? section = "frontpage" : section = path
         title = link.children.inner_text
         address = link.attributes["href"].value
-        Hplink.create(section: section, title: title, url: address)
+        Hplink.create(section: section, title: title, url: address) if Hplink.where(url: address).empty?
       end
     end
   end

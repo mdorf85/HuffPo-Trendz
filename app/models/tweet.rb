@@ -36,15 +36,4 @@ class Tweet < ActiveRecord::Base
     end
   end
 
-  # def self.create_tests
-
-  #   Tweet.all.each do |tweet|
-  #     tweet.
-
-
-  #   end
-
-
-  # end
-
 end

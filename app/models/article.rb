@@ -2,6 +2,7 @@ class Article < ActiveRecord::Base
 
   @@hotwords = {}
   @@topics = []
+  ARBITRARY_FILTER = 10 # number of words an article must match with tweets to be considered relevant
 
   cattr_reader :hotwords, :topics
 
@@ -14,13 +15,14 @@ class Article < ActiveRecord::Base
   def self.build_hotwords_hash
     build_topic_keys
     @@topics.each do |topic|
-      # binding.pry
       relevant_tweets = Tweet.where(topic: topic).limit(nil)
       master_array = relevant_tweets.collect {|tweet| tweet.content}
       master_array = master_array.collect {|tweet| tweet.split(" ")}
       master_array.flatten!
-      master_string = (master_array - STOPWORDS).join(" ")
-      @@hotwords[topic.to_sym] = master_string
+      master_array = (master_array - STOPWORDS)
+      # binding.pry
+      master_array.each {|word| word.downcase!; word.gsub!(/[^\w]/, "")}
+      @@hotwords[topic.to_sym] = master_array
     end
     @@hotwords
   end
@@ -28,38 +30,41 @@ class Article < ActiveRecord::Base
   # MAKE WORK THEN MAKE IT SO EVERY VISIT TO A SITE IS A SESSION THAT ONLY ACCESSES
 
   def self.populate_db
+    build_hotwords_hash
     Hplink.all.each do |link|
       doc = Nokogiri::HTML(open(link.url))
       title = doc.at_css("h1.title").children[0].to_s
-      article = doc.xpath("//p").collect {|par| par.text}
-      all_text = article.join + title
-      #TODO: SEARCH all_text FOR HOTWORDS MATCHES IN EACH VALUE OF HASH
+      article_arr = doc.xpath('//div[@id="mainentrycontent"]/p/text()').collect {|par| par.text}
+      all_text = (title + " " + article_arr.join(" ")).downcase!.gsub!(/[^\s\w]/, "")
       topic_and_matches = find_topic_and_matches(all_text)
-      # Article.create(title: title, body: , topic: topic_and_matches.first , url: link.url , matches: topic_and_matches.last) if topic_and_matches.last
+       # binding.pry
+      Article.create(title: title, body: article_arr.join(" "), topic: topic_and_matches.first , url: link.url, matches: topic_and_matches.last) if topic_and_matches.last > ARBITRARY_FILTER
     end
 
   end
 
-  # hotwords = {topic: "blah, blah, blah", topic: "yada", topic: "stuff"}
+  # hotwords = {topic1: ["blah", "blah", "blah"], topic2: ["yada"] topic3: ["stuff", "stuff"]}
 
-  # def find_topic_and_matches(all_text)
-  #   matches = 0
-  #   topic_match = nil
-
-  #   @@hotwords.each do |topic, string|
-  #     curr_matches = 0
-  #     all_text.split.each do |word|
-  #       curr_matches += 1 if string.include?(word)
-  #     end
-  #     topic_match = topic if matches > 0
-  #   end
-  # end
-
-
-
-
+  def self.find_topic_and_matches(all_text)
+    matches = 0
+    topic_match = "no topic"
+    @@hotwords.each do |topic, hotwords_arr|
+      curr_matches = 0
+      hotwords_arr.each do |word|
+        curr_matches += 1 if all_text.include?(word)
+      end
+      if curr_matches > matches
+        matches = curr_matches
+        topic_match = topic
+      end
+      # binding.pry
+    end
+    [topic_match, matches]
+  end
 
 end
+
+# articleArr = doc.xpath('//div[@id="mainentrycontent"]/p/text()').collect {|par| par.text}
 
   # t.string :title
   # t.string :body
