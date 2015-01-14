@@ -35,6 +35,8 @@ gem 'oauth'
 
 gem 'selenium-webdriver', '~> 2.44.0'
 
+gem 'gon'
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 

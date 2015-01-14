@@ -3,9 +3,7 @@ require 'open-uri'
 class Hplink < ActiveRecord::Base
 
   URL = "http://www.huffingtonpost.com/"
-  PATHS = ["","politics", "business", "entertainment","technology","media","theworldpost","sports"]
-
-  #needs refactoring
+  PATHS = ["", "politics", "entertainment", "technology", "media", "sports"]
 
   def self.populate_db
     PATHS.each do |path|
@@ -15,7 +13,7 @@ class Hplink < ActiveRecord::Base
         path == "" ? section = "frontpage" : section = path
         title = link.children.inner_text
         address = link.attributes["href"].value
-        Hplink.create(section: section, title: title, url: address) if Hplink.where(url: address).empty?
+        Hplink.create(section: section, title: title, url: address) if (Hplink.where(url: address).empty? && (Hplink.where(url: address.gsub!("#comments","")).empty? if Hplink.where(url: address)))
       end
     end
   end

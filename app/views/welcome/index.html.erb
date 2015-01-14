@@ -1,0 +1,22 @@
+
+<!-- dropdown menu that contains -->
+<form>
+  <select name="choice" onchange="makeTable(this.value)">
+    <option value="">Please select</option>
+    <%= @paths.each do |section| %>
+    <option value="<%= section %>"><%= section %> </option>
+    <% end %>
+  </select>
+<!--   <input type="submit" onclick= "makeTable(this.value())"> -->
+</form>
+
+<%#= params[:section] = @section %>
+
+<%#= binding.pry %>
+
+<%#= button_tag :Submit, :section -> @section, data: { disable_with: "Please wait..." } %>
+
+<!-- headline:     Section         -->
+<div class="mytable"></div>
+
+  <!-- dynamically populate Table Rows -->

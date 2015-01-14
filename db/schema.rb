@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150111154401) do
+ActiveRecord::Schema.define(version: 20150113192442) do
 
   create_table "articles", force: true do |t|
     t.string   "title"
@@ -21,6 +21,7 @@ ActiveRecord::Schema.define(version: 20150111154401) do
     t.integer  "matches"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string   "section"
   end
 
   create_table "hplinks", force: true do |t|

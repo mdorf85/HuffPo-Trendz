@@ -7,10 +7,13 @@ class Tweet < ActiveRecord::Base
     config.access_token_secret = ENV['ACCESS_SECRET']
   end
 
-  PLACE = 23424977 #USA
+  PLACE = 23424977 # USA
+  NUM_TWEETS = 25 # Number of tweets to store and parse per trending topic
 
   @@topics = []
   @@trending_tweets = {}
+
+  cattr_reader :topics
 
   def self.get_trending_topics
     trends = (TWITTER.trends(id = PLACE)).to_h
@@ -20,8 +23,9 @@ class Tweet < ActiveRecord::Base
   end
 
   def self.get_top_tweets
+    get_trending_topics
     @@topics.each do |topic|
-      TWITTER.search(topic, {result_type: "popular", lang: "en", count: 25}).to_h[:statuses].each do |status|
+      TWITTER.search(topic, {result_type: "popular", lang: "en", count: NUM_TWEETS}).to_h[:statuses].each do |status|
         @@trending_tweets[topic] ||= []
         @@trending_tweets[topic] << status[:text]
       end
@@ -29,6 +33,7 @@ class Tweet < ActiveRecord::Base
   end
 
   def self.populate_db
+    get_top_tweets
     @@trending_tweets.each do |topic, contents|
       contents.each do |content|
         Tweet.create(topic: topic, content: content)

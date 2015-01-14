@@ -2,45 +2,61 @@ class Article < ActiveRecord::Base
 
   @@hotwords = {}
   @@topics = []
-  ARBITRARY_FILTER = 10 # number of words an article must match with tweets to be considered relevant
+  ARBITRARY_FILTER = 15 # number of words an article must match with tweets to be considered relevant
 
-  cattr_reader :hotwords, :topics
+  # cattr_reader :hotwords, :topics
+  cattr_reader :hotwords
 
+  # scope by_matches order(:name)
 
-  def self.build_topic_keys
-    Tweet.all.each {|t| @@topics << (t.topic) unless @@topics.include?(t.topic)}
-    @@topics
-  end
+  # def self.build_topic_keys
+  #   Tweet.all.each {|t| @@topics << (t.topic) unless @@topics.include?(t.topic)}
+  #   @@topics
+  # end
 
   def self.build_hotwords_hash
-    build_topic_keys
-    @@topics.each do |topic|
+    # build_topic_keys
+    Tweet.topics.each do |topic|
       relevant_tweets = Tweet.where(topic: topic).limit(nil)
       master_array = relevant_tweets.collect {|tweet| tweet.content}
       master_array = master_array.collect {|tweet| tweet.split(" ")}
       master_array.flatten!
       master_array = (master_array - STOPWORDS)
-      # binding.pry
       master_array.each {|word| word.downcase!; word.gsub!(/[^\w]/, "")}
       @@hotwords[topic.to_sym] = master_array
     end
     @@hotwords
   end
 
-  # MAKE WORK THEN MAKE IT SO EVERY VISIT TO A SITE IS A SESSION THAT ONLY ACCESSES
+  # USES FULL ARTICLE:
+  # def self.populate_db
+  #   build_hotwords_hash
+  #   Hplink.all.each do |link|
+  #     doc = Nokogiri::HTML(open(link.url))
+  #     title = doc.at_css("h1.title").children[0].to_s
+  #     article_arr = doc.xpath('//div[@id="mainentrycontent"]/p/text()').collect {|par| par.text}
+  #     all_text = (title + " " + article_arr.join(" ")).downcase!.gsub!(/[^\s\w]/, "")
+  #     if !article_arr.empty?
+  #       topic_and_matches = find_topic_and_matches(all_text)
+  #       Article.create(title: title, body: article_arr.join(" "), topic: topic_and_matches.first , url: link.url, matches: topic_and_matches.last) if topic_and_matches.last > ARBITRARY_FILTER
+  #     end
+  #   end
+  # end
 
+  # USES ARTICLE TAGS ONLY:
   def self.populate_db
     build_hotwords_hash
     Hplink.all.each do |link|
       doc = Nokogiri::HTML(open(link.url))
       title = doc.at_css("h1.title").children[0].to_s
-      article_arr = doc.xpath('//div[@id="mainentrycontent"]/p/text()').collect {|par| par.text}
-      all_text = (title + " " + article_arr.join(" ")).downcase!.gsub!(/[^\s\w]/, "")
-      topic_and_matches = find_topic_and_matches(all_text)
-       # binding.pry
-      Article.create(title: title, body: article_arr.join(" "), topic: topic_and_matches.first , url: link.url, matches: topic_and_matches.last) if topic_and_matches.last > ARBITRARY_FILTER
+      # binding.pry
+      tags = doc.at_css("span.group").children.children.children.collect {|el| el.text}
+      all_text = (title + " " + tags.join(" ")).downcase!.gsub!(/[^\s\w]/, "")
+      if all_text
+        topic_and_matches = find_topic_and_matches(all_text)
+        Article.create(section: link.section, title: title, body: tags.join(" "), topic: topic_and_matches.first , url: link.url, matches: topic_and_matches.last) if topic_and_matches.last > ARBITRARY_FILTER
+      end
     end
-
   end
 
   # hotwords = {topic1: ["blah", "blah", "blah"], topic2: ["yada"] topic3: ["stuff", "stuff"]}
@@ -63,32 +79,3 @@ class Article < ActiveRecord::Base
   end
 
 end
-
-# articleArr = doc.xpath('//div[@id="mainentrycontent"]/p/text()').collect {|par| par.text}
-
-  # t.string :title
-  # t.string :body
-  # t.string :topic
-  # t.string :url
-  # t.integer :matches
-
-
-  # def self.populate_db
-  #   PATHS.each do |path|
-  #     doc = Nokogiri::HTML(open(URL + path))
-  #     links = doc.xpath("//a").select{|link| link.attributes["href"].inner_html.include?("huffingtonpost.com/201") if link.attributes["href"]}
-  #     links.each do |link|
-  #       path == "" ? section = "frontpage" : section = path
-  #       title = link.children.inner_text
-  #       address = link.attributes["href"].value
-  #       Hplink.create(section: section, title: title, url: address)
-  #     end
-  #   end
-  # end
-
-
-  # Article.create(title: title, )
-
-  # title = doc.at_css("h1.title").children[0].to_s
-
-  # article = doc.xpath("//p").select{|par| par.parent.attributes["id"] == "mainentrycontent"}
