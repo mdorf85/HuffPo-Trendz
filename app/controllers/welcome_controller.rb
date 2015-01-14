@@ -1,12 +1,12 @@
 class WelcomeController < ApplicationController
   def index
-    # Article.destroy_all
-    # Hplink.destroy_all
-    # Tweet.destroy_all
+    Article.destroy_all
+    Hplink.destroy_all
+    Tweet.destroy_all
 
-    # Tweet.populate_db
-    # Hplink.populate_db
-    # Article.populate_db
+    Tweet.populate_db
+    Hplink.populate_db
+    Article.populate_db
 
     @paths =  ["frontpage", "politics", "entertainment", "technology", "media", "sports"]
     gon.frontpage = Article.where(section: @paths[0]).limit(nil).to_a
