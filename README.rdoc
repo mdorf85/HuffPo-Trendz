@@ -1,28 +1,13 @@
 == README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+During the several minutes of page load time, the this App hits up the Twitter API stores tweets pertaining to each of ten current trending topics into the database.
 
-Things you may want to cover:
+Then using the Nokogiri gem, it scrapes articles in an array of sections on the Huffington Post site, stores their title and tags in the databse.
 
-* Ruby version
+Finally, an algorithm is ran to match each trending topic and their corresponding tweets to a HuffPo's article.
 
-* System dependencies
+Once the page is loaded, a table can be selected dynamically by choosing a section of HuffPo's site. Each relevant article's title (linked to its source), the trending topic it relates to and the number of word matches it had in common with Twitter.
 
-* Configuration
+<img src="./app/assets/images/table_screen_shot.png">
 
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
-
-
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+The app clears the database on each new execution (site visit) during page load.
