@@ -18,17 +18,3 @@ class WelcomeController < ApplicationController
   end
 
 end
-
-
-# On page load there is a dropdown containing the different HuffPo sections.
-
-# User selects one and clicks submit. (gets added to parameter)
-
-# Show action receives that parameter and proliferates table (Article.where(section: @section).each {}) via AJAX? partial
-
-
-# <%= form_for(Article) do |f| %>
-# <%= f.collection_select(:article, @paths, prompt: true) %>
-# <% end %>
-
-# to be used in index:
