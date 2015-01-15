@@ -8,6 +8,6 @@ Finally, an algorithm is ran to match each trending topic and their correspondin
 
 Once the page is loaded, a table can be selected dynamically by choosing a section of HuffPo's site. Each relevant article's title (linked to its source), the trending topic it relates to and the number of word matches it had in common with Twitter.
 
-rdoc-image: "https://raw.githubusercontent.com/mdorf85/HuffPo-Trendz/master/app/assets/images/table_screen_shot.png"
+http://raw.githubusercontent.com/mdorf85/HuffPo-Trendz/master/app/assets/images/table_screen_shot.png
 
 The app clears the database on each new execution (site visit) during page load.
